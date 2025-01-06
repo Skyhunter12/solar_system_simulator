@@ -30,6 +30,10 @@ class SolarSystem:
         self.y = y
         # self.speed = speed
         self.radius = radius
+        self.orbit = []
+        self.x_vel = 0
+        self.y_vel = 0
+        self.TIME_STEP = 60*60*24*365
     
     def draw(self, WINDOW):
         x=self.x * SolarSystem.SCALE + window_width//2
@@ -46,6 +50,19 @@ class SolarSystem:
         force_x = math.cos(theta) * force
         force_y = math.sin(theta) * force
         return force_x, force_y
+    
+    def update_position(self, ss_bodies):
+        net_x, net_y = 0, 0
+        for ss_body in ss_bodies:
+            if(self != ss_body):
+                f_x, f_y = self.gravity_between_mass(ss_body)
+                net_x += f_x
+                net_y += f_y
+            self.x_vel += net_x / self.mass * self.TIME_STEP
+            self.y_vel += net_y / self.mass * self.TIME_STEP 
+            self.x+= self.x_vel * self.TIME_STEP
+            self.y+= self.y_vel * self.TIME_STEP
+            self.orbit.append((self.x, self.y))
 # star list
 starlist =[
     {
