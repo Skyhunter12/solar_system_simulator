@@ -9,8 +9,20 @@ WHITE = (255, 255, 255)
 YELLOWISH_WHITE = (255, 255, 240)
 BLUE = (0, 0, 255)
 RED = (188, 39, 50)
+NAME_TEXT_COLOR = (119,200,255)
+DIST_TEXT_COLOR = (119,100,255)
+SUN_NAME_COLOR = (122,20,255)  
+SUN_TEXT_COLOR = (122,255,20)
 
 pg.init()
+pg.font.init()
+
+NAME_TEXT = pg.font.SysFont('TimesRoman',size= 20, bold=True)
+DIST_TEXT = pg.font.SysFont('Sans',size= 16, bold=True)
+SUN_NAME = pg.font.SysFont('TimesRoman',size= 20, bold=True)
+SUN_TEXT = pg.font.SysFont('Sans',size= 16, bold=True)
+
+
 info = pg.display.Info()
 window_width = info.current_w 
 window_height = info.current_h
@@ -35,6 +47,7 @@ class SolarSystem:
         self.x_vel = 0
         self.y_vel = 0
         self.TIME_STEP = 60*60*24
+        self.sun =False
         
         # distance_to_center = math.sqrt(self.x**2 + self.y**2) or 1
         # orbital_velocity = math.sqrt(self.G * mass / distance_to_center)
@@ -46,11 +59,23 @@ class SolarSystem:
         y=self.y * SolarSystem.SCALE + window_height//2
         pg.draw.circle(surface=WINDOW, color=self.color, center=(int(x), int(y)), radius=self.radius)
 
+        if not self.sun:
+            text = NAME_TEXT.render(self.name, True, NAME_TEXT_COLOR)
+            WINDOW.blit(text, (x-40, y-45))
+            dist_text = DIST_TEXT.render(f'{round(self.dist_between_sun/(3e8*60),3)}', True, DIST_TEXT_COLOR)
+            WINDOW.blit(dist_text, (x-40, y-65))
+        else:
+            sun_text = SUN_NAME.render(self.name, True, SUN_NAME_COLOR)
+            WINDOW.blit(sun_text, (x-40, y-70))
+            sun_dist_text = SUN_TEXT.render(f'{round(self.x/3e8,3), round(self.y/3e8, 3)}', True, SUN_TEXT_COLOR)
+            WINDOW.blit(sun_dist_text, (x-40, y-85))
+
     def gravity_between_mass(self, body):
         # f =GMm/r^2
         x_diff = body.x - self.x 
         y_diff = body.y - self.y 
         distance = math.sqrt(x_diff**2 + y_diff**2)
+        self.dist_between_sun = distance
         if distance == 0:
             return 0, 0
         force = SolarSystem.G * self.mass * body.mass / distance**2
@@ -83,6 +108,7 @@ starlist =[
 ]
 
 sun = SolarSystem("Sun", YELLOW, 0, 0, 1.989e30, 30)
+sun.sun = True
 mercury = SolarSystem('Mercury', GRAY, 0.39*SolarSystem.AU, 0, 3.285e23, 6)
 mercury.y_vel = -47.87e3
 venus = SolarSystem('Venus', YELLOWISH_WHITE, 0.72*SolarSystem.AU, 0, 4.867e24, 14)
