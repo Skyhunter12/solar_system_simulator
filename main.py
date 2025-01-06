@@ -21,6 +21,7 @@ pg.display.set_caption("Solar System")
 class SolarSystem:
     AU=1496e11
     SCALE=285 / AU
+    M = 6.6743e-11
     def __init__(self, name, color, x, y, mass, radius):
         self.name = name
         self.mass = mass
@@ -34,6 +35,17 @@ class SolarSystem:
         x=self.x * SolarSystem.SCALE + window_width//2
         y=self.y * SolarSystem.SCALE + window_height//2
         pg.draw.circle(surface=WINDOW, color=self.color, center=(int(x), int(y)), radius=self.radius)
+
+    def gravity_between_mass(self, body):
+        # f =GMm/r^2
+        x_diff = self.x - body.x
+        y_diff = self.y - body.y
+        distance = math.sqrt(x_diff**2 + y_diff**2)
+        force = SolarSystem.M * self.mass * body.mass / distance**2
+        theta = math.atan2(y_diff, x_diff)
+        force_x = math.cos(theta) * force
+        force_y = math.sin(theta) * force
+        return force_x, force_y
 # star list
 starlist =[
     {
